@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>УМАЙ — Татарские и башкирские украшения</title>
+    <style>
+        body { margin:0; font-family:gabriola; background: #003153; color: #ffd700; }
+        .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background: #184d47 url('img/123.jpg') no-repeat center/cover; }
+        .brand { font-size:8em; font-weight:bold; color:#003153; letter-spacing:8px; animation:brandAnim 2s linear forwards; text-align:left;}
+        @keyframes brandAnim { 
+            from { opacity:0; transform: translateX(-100%);} 
+            to { opacity:1; transform: translateX(0);}
+        }
+        .slogan { font-size:3em; margin-top:15px; color:#003153; font-style:italic;}
+        #main { display:none; }
+        .catalog { display:flex; flex-wrap:wrap; gap:32px; justify-content:center; margin:40px;}
+        .item { background:#003153; border-radius:14px; box-shadow:0 2px 8px #05242f33; width:250px; color:#184d47; transition:.2s; cursor:pointer; padding:18px; }
+        .item:hover { box-shadow:0 4px 16px #05242f55; }
+        .item img { width:220px; height:220px; object-fit:cover; border-radius:10px;}
+        .item-title { font-size:1.3em; font-weight:bold; margin:10px 0;}
+        .item-desc { font-size:1em; min-height:48px;}
+        .item-price { font-size:1.2em; color:#ffd700; margin:8px 0;}
+        .add-cart { background:#1976d2; color:#ffd700; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:1em;}
+        /* Корзина */
+        #cart { position:fixed; top:25px; right:25px; background:#003153; color:#ffd700; border-radius:10px; padding:18px; box-shadow:0 2px 16px #05242f77; display:none;}
+        #cart-items { list-style:none; padding:0;}
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader">
+        <div class="brand" id="brand">УМАЙ</div>
+        <div class="slogan" id="slogan">Пусть история говорит за тебя</div>
+    </div>
+    <div id="main">
+        <h1 style="text-align:center;letter-spacing:6px;color:#ffd700;">Каталог украшений</h1>
+        <div class="catalog" id="catalog"></div>
+        <div id="cart">
+            <h3>Ваша корзина</h3>
+            <ul id="cart-items"></ul>
+            <button onclick="closeCart()">Закрыть</button>
+        </div>
+        <button onclick="openCart()" style="position:fixed;bottom:32px;right:45px;background:#003153;color:#ffd700;padding:14px 22px;border-radius:50%;font-size:2em;border:none;box-shadow:0 2px 8px #184d4788;cursor:pointer;">🛒</button>
+    </div>
+
+<script>
+    // Анимация загрузки
+    setTimeout(()=>{
+        document.getElementById('loader').style.display='none';
+        document.getElementById('main').style.display='block';
+        loadCatalog();
+    }, 5000);
+
+    // Каталог из JSON
+    function loadCatalog(){
+        fetch('catalog.json')
+        .then(res=>res.json())
+        .then(items=>{
+            let el = document.getElementById('catalog');
+            el.innerHTML = '';
+            items.forEach((item,idx)=>{
+                let div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <img src="${item.img}" alt="${item.title}">
+                    <div class="item-title">${item.title}</div>
+                    <div class="item-desc">${item.desc}</div>
+                    <div class="item-price">${item.price} ₽</div>
+                    <button class="add-cart" onclick="addCart(${idx})">В корзину</button>
+                `;
+                el.appendChild(div);
+            });
+            window.catalog = items;
+        });
+    }
+    // Корзина
+    let cart = [];
+    function addCart(idx){
+        cart.push(window.catalog[idx]);
+        alert("Добавлено в корзину!");
+    }
+    function openCart(){
+        let el = document.getElementById('cart-items');
+        el.innerHTML = '';
+        cart.forEach(item=>{
+            let li = document.createElement('li');
+            li.innerText = `${item.title} — ${item.price} ₽`;
+            el.appendChild(li);
+        });
+        document.getElementById('cart').style.display = 'block';
+    }
+    function closeCart(){ document.getElementById('cart').style.display = 'none'; }
+</script>
+</body>
+</html>
